@@ -1,0 +1,45 @@
+@startuml
+!include <C4/C4_Context.puml>
+
+Person(patient, "Пациент", "")
+Person(reception, "Сотрудник ресепшена", "")
+Person(doctor, "Медицинский специалист", "")
+Person(cashier, "Кассир", "")
+Person(accountant, "Бухгалтер", "")
+Person(warehouse, "Сотрудник склада", "")
+
+System_Ext(lab, "Лаборатория анализов", "Внешняя лаборатория с API")
+System_Ext(bank, "Банковский эквайринг", "Платёжные транзакции и статусы операций")
+System_Ext(notify, "Сервис уведомлений", "Уведомления пациентам и сотрудникам")
+System_Ext(legacy1c, "1С (бухгалтерия и склад)", "Существующие учётные системы в переходный период")
+
+System_Boundary(medikamente, "Medikamente") {
+    System(corePlatform, "Единая платформа записи и ведения пациентов", "Клиентский портал, портал сотрудников, CRM, расписание, медицинские записи")
+    System(privacyLayer, "Слой управления конфиденциальностью и данными", "Согласия на обработку ПДн, тегирование, RBAC, ABAC, Data Minimization")
+    System(apiGuard, "Слой защищённых интеграций", "Единая точка входа, проверка контрактов, защищённые интеграции")
+    System(analyticsLayer, "Аналитический слой", "Обезличенные и тегированные данные для BI, ML и AI")
+    System(auditSec, "Слой аудита и мониторинга", "Логирование доступов, мониторинг, алертинг, Audit Trail")
+}
+
+Rel(patient, corePlatform, "Запись, личный кабинет, просмотр только своих данных")
+Rel(reception, corePlatform, "Управление приёмами и договорами")
+Rel(doctor, corePlatform, "Работа с медицинской картой пациента")
+Rel(cashier, corePlatform, "Платежи и сверка оплат")
+Rel(accountant, corePlatform, "Получение финансовых данных и выгрузок")
+Rel(warehouse, corePlatform, "Ведение учёта ТМЦ")
+
+Rel(corePlatform, privacyLayer, "Проверка согласий, классификация и политика доступа к данным")
+Rel(corePlatform, apiGuard, "Внешние и межсистемные вызовы через защищённый слой")
+Rel(corePlatform, analyticsLayer, "Передача данных для аналитики по правилам минимизации")
+
+Rel(apiGuard, lab, "Интеграция лабораторных заказов и результатов")
+Rel(corePlatform, bank, "Платёжные операции")
+Rel(corePlatform, notify, "Уведомления о записи, переносе и отмене")
+Rel(corePlatform, legacy1c, "Переходная синхронизация учёта")
+
+Rel(privacyLayer, analyticsLayer, "Политики обезличивания, классификация и контроль доступа")
+Rel(privacyLayer, auditSec, "Передача политик, инцидентов и результатов проверок")
+Rel(analyticsLayer, auditSec, "Логи доступа к витринам и моделям")
+Rel(corePlatform, auditSec, "События доступа и изменения данных")
+
+@enduml
